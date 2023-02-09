@@ -14,7 +14,6 @@ pipeline {
         SSH_CMD = 'ssh -i /var/lib/jenkins/.ssh/jenkins.pem ubuntu@3.34.53.11'
         ENV_FILE = '--env-file=./env/api-gateway.env'
         NETWORK = '--net winter-blog-network'
-        EUREKA_SERVER = '-e "eureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka/"'
     }
 
     stages {
@@ -49,7 +48,8 @@ pipeline {
                   sh "$SSH_CMD 'docker pull $repository'"
                   sh "$SSH_CMD 'docker stop $DOCKER_CONTAINER_NAME || true'"
                   sh "$SSH_CMD 'docker rm $DOCKER_CONTAINER_NAME || true'"
-                  sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK $EUREKA_SERVER -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
+                  sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
+
                   sh "$SSH_CMD 'docker images -qf dangling=true | xargs -I{} docker rmi {}'"
             }
          }
