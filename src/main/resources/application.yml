@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER}
+
+spring:
+  application:
+    name: ${NAME}
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/api/*/users
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: ${ALLOWED_ORIGINS}
+            allow-credentials: true
+            allowedHeaders: '*'
+            allowedMethods:
+              - PUT
+              - GET
+              - POST
+              - DELETE
+              - OPTIONS
+

@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_BRANCH = 'develop'
+        GIT_REPOSITORY_URL = 'https://github.com/winter-blog/api-gateway.git'
+
+        repository = 'alswn4516/winter-blog-api-gateway'
+        DOCKERHUB_CREDENTIALS = credentials('docker_hub_user_credential')
+        DOCKER_CONTAINER_NAME = 'winter-blog-api-gateway'
+
+        EXTERNAL_PORT = 8080
+        INTERNAL_PORT = 8080
+        SSH_CMD = 'ssh -i /var/lib/jenkins/.ssh/jenkins.pem ubuntu@3.34.53.11'
+        ENV_FILE = '--env-file=./env/api-gateway.env'
+        NETWORK = '--net winter-blog-network'
+    }
+
+    stages {
+        stage('checkout') {
+          steps {
+            git branch: "$GIT_BRANCH",
+                url: "$GIT_REPOSITORY_URL",
+                credentialsId: 'github_access_token_credential'
+            }
+        }
+
+        stage('Gradle Build') {
+          steps {
+                sh "chmod +x gradlew"
+                sh """
+                   ./gradlew clean build bootJar -x test
+                   """
+            }
+        }
+
+        stage("Dockerize") {
+            steps {
+                sh "docker build -t $repository ."
+                sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
+                sh "docker push $repository"
+                sh "docker rmi $repository"
+            }
+        }
+
+         stage("Deploy to EC2") {
+            steps {
+                  sh "$SSH_CMD 'docker pull $repository'"
+                  sh "$SSH_CMD 'docker stop $DOCKER_CONTAINER_NAME || true'"
+                  sh "$SSH_CMD 'docker rm $DOCKER_CONTAINER_NAME || true'"
+                  sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
+                  sh "$SSH_CMD 'docker images -qf dangling=true | xargs -I{} docker rmi {}'"
+            }
+         }
+    }
+}
