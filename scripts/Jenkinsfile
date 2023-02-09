@@ -14,7 +14,6 @@ pipeline {
         SSH_CMD = 'ssh -i /var/lib/jenkins/.ssh/jenkins.pem ubuntu@3.34.53.11'
         ENV_FILE = '--env-file=./env/api-gateway.env'
         NETWORK = '--net winter-blog-network'
-        // EUREKA_SERVER = '-e "eureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka/"'
     }
 
     stages {
