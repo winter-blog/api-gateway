@@ -49,6 +49,7 @@ pipeline {
                   sh "$SSH_CMD 'docker stop $DOCKER_CONTAINER_NAME || true'"
                   sh "$SSH_CMD 'docker rm $DOCKER_CONTAINER_NAME || true'"
                   sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
+
                   sh "$SSH_CMD 'docker images -qf dangling=true | xargs -I{} docker rmi {}'"
             }
          }
