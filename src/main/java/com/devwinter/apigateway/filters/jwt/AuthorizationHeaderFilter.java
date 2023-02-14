@@ -6,6 +6,7 @@ import com.devwinter.apigateway.response.BaseResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -49,8 +50,11 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
                 Long userId = getUserId(request);
                 String accessToken = getAccessToken(request);
 
+                // 토큰 유효성 검사 및 유효시간 확인
+                tokenValidAndExpireCheck(accessToken);
+
                 // 토큰 위변조 검증
-                tokenValid(accessToken, userId);
+                tokenForgeryCheck(accessToken, userId);
 
                 // 회원이 있는지 검사
                 Mono<BaseResponse<Boolean>> baseResponseMono = credential(userId);
@@ -70,35 +74,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
                 return onError(exchange, e.getApiGatewayErrorCode());
             }
         };
-    }
-
-    private Mono<BaseResponse<Boolean>> credential(Long userId) {
-        WebClient webClient = WebClient.builder()
-                                       .baseUrl("http://localhost:8080/auth-service")
-                                       .build();
-        return webClient.get()
-                        .uri("/" + userId + "/valid")
-                        .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<>() {
-                        });
-    }
-
-    private ServerHttpRequest addHeaderEmail(ServerWebExchange exchange, String accessToken) {
-        return exchange.getRequest()
-                       .mutate()
-                       .header("email", jwtTokenProvider.getClaimFromToken(accessToken, Claims::getSubject))
-                       .build();
-    }
-
-    private void tokenValid(String accessToken, Long userId) {
-        try {
-            jwtTokenProvider.tokenValid(accessToken);
-        } catch (Exception e) {
-            throw new ApiGatewayException(ApiGatewayErrorCode.JWT_TOKEN_VALID_FAIL);
-        }
-        if (!userId.equals(jwtTokenProvider.getAudienceFromToken(accessToken))) {
-            throw new ApiGatewayException(ApiGatewayErrorCode.JWT_TOKEN_AND_USER_ID_NOT_VALID);
-        }
     }
 
     private Long getUserId(ServerHttpRequest request) {
@@ -130,6 +105,40 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
         String authorizationHeader = authorizations.get(0);
         return authorizationHeader.replace("Bearer", "");
+    }
+
+    private void tokenValidAndExpireCheck(String accessToken) {
+        try {
+            jwtTokenProvider.tokenValid(accessToken);
+        } catch(ExpiredJwtException e) {
+            throw new ApiGatewayException(JWT_TOKEN_EXPIRE);
+        } catch (Exception e) {
+            throw new ApiGatewayException(JWT_TOKEN_VALID_FAIL);
+        }
+    }
+
+    private void tokenForgeryCheck(String accessToken, Long userId) {
+        if (!userId.equals(jwtTokenProvider.getAudienceFromToken(accessToken))) {
+            throw new ApiGatewayException(JWT_TOKEN_AND_USER_ID_NOT_VALID);
+        }
+    }
+
+    private Mono<BaseResponse<Boolean>> credential(Long userId) {
+        WebClient webClient = WebClient.builder()
+                                       .baseUrl("http://localhost:8080/auth-service")
+                                       .build();
+        return webClient.get()
+                        .uri("/" + userId + "/valid")
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<>() {
+                        });
+    }
+
+    private ServerHttpRequest addHeaderEmail(ServerWebExchange exchange, String accessToken) {
+        return exchange.getRequest()
+                       .mutate()
+                       .header("email", jwtTokenProvider.getClaimFromToken(accessToken, Claims::getSubject))
+                       .build();
     }
 
     public Mono<Void> onError(ServerWebExchange exchange, ApiGatewayErrorCode errorCode) {
