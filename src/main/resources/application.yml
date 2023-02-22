@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      name: apigateway
+      profile: prod
+  config:
+    import: ${CONFIG_SERVER}
