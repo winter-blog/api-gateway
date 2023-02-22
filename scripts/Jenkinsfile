@@ -9,7 +9,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('docker_hub_user_credential')
         DOCKER_CONTAINER_NAME = 'winter-blog-api-gateway'
 
-        PROFILE='-e "SPRING_PROFILES_ACTIVE=prod"'
+        // PROFILE='-e "SPRING_PROFILES_ACTIVE=prod"'
         EXTERNAL_PORT = 8080
         INTERNAL_PORT = 8080
         SSH_CMD = 'ssh -i /var/lib/jenkins/.ssh/jenkins.pem ubuntu@3.34.53.11'
@@ -49,7 +49,8 @@ pipeline {
                   sh "$SSH_CMD 'docker pull $repository'"
                   sh "$SSH_CMD 'docker stop $DOCKER_CONTAINER_NAME || true'"
                   sh "$SSH_CMD 'docker rm $DOCKER_CONTAINER_NAME || true'"
-                  sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK $PROFILE -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
+//                   sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK $PROFILE -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
+                  sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
                   sh "$SSH_CMD 'docker images -qf dangling=true | xargs -I{} docker rmi {}'"
             }
          }
