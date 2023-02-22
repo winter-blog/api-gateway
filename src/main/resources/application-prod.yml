@@ -14,14 +14,14 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user-service
-          uri: lb://USER-SERVICE
+        - id: member-service
+          uri: lb://MEMBER-SERVICE
           predicates:
-            - Path=/user-service/api/*/users
+            - Path=/member-service/api/*/members
             - Method=POST
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
@@ -38,7 +38,16 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
+            - AccessTokenAuthorizationHeaderFilter
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/refresh-token
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+            - RefreshTokenAuthorizationHeaderFilter
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:

@@ -1,18 +1,15 @@
 package com.devwinter.apigateway.response;
 
+import com.devwinter.apigateway.exception.ApiGatewayErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
 public class BaseResponse<T> {
-    private String result;
-    private String message;
+    private Result result;
     private T body;
 
     @Getter
@@ -25,15 +22,44 @@ public class BaseResponse<T> {
         private final String description;
     }
 
-    public static <T> BaseResponse<T> success(T body) {
-        return new BaseResponse<>(ResultCode.SUCCESS.description, null, body);
+    @Getter
+    @Builder(access = AccessLevel.PROTECTED)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Result {
+        private String status;
+        private String message;
+
+        public static Result success(String message) {
+            return Result.builder()
+                         .status(ResultStatus.SUCCESS.description)
+                         .message(message)
+                         .build();
+        }
+
+        public static Result fail(String message) {
+            return Result.builder()
+                         .status(ResultStatus.FAIL.description)
+                         .message(message)
+                         .build();
+        }
+
+        @Getter
+        @RequiredArgsConstructor
+        public enum ResultStatus {
+            SUCCESS("success"),
+            FAIL("fail")
+            ;
+
+            private final String description;
+        }
     }
 
-    public static <T> BaseResponse<T> error(String message, T body) {
-        return new BaseResponse<>(ResultCode.FAIL.description, message, body);
+    public static <T> BaseResponse<T> error(ApiGatewayErrorCode errorCode) {
+        return new BaseResponse<>(Result.fail(errorCode.getMessage()), null);
     }
 
     public static <T> BaseResponse<T> error(String message) {
-        return new BaseResponse<>(ResultCode.FAIL.description, message, null);
+        return new BaseResponse<>(Result.fail(message), null);
     }
 }
