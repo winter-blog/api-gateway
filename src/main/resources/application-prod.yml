@@ -1,7 +1,7 @@
 spring:
   cloud:
     config:
-      name: apigateway
-      profile: prod
+      name: ${CONFIG_NAME}
+      profile: ${CONFIG_PROFILE}
   config:
-    import: optional:configserver:http://winter-blog-config-service:8888
+    import: ${CONFIG_SERVER}
