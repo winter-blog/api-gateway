@@ -4,4 +4,4 @@ spring:
       name: ${CONFIG_NAME}
       profile: ${CONFIG_PROFILE}
   config:
-    import: optional:configserver:http://winter-blog-config-service:8888
+    import: optional:configserver:${CONFIG_SERVER}
