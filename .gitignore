@@ -170,4 +170,4 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,intellij+all,java,windows
 
-application.yml
+application-local.yml
