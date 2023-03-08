@@ -4,6 +4,7 @@ import com.devwinter.apigateway.application.port.input.RefreshTokenValidUseCase;
 import com.devwinter.apigateway.application.port.output.GetUserValidPort;
 import com.devwinter.apigateway.response.BaseResponse;
 import com.devwinter.apigateway.response.MemberValidResponse;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -30,6 +31,6 @@ public class RefreshTokenValidService implements RefreshTokenValidUseCase {
         // 토큰 위변조 검증
         jwtTokenProvider.tokenForgeryCheck(userId, accessToken);
 
-        return getUserValidPort.requestValidUserCheck(userId);
+        return getUserValidPort.requestValidMemberCheck(jwtTokenProvider.getSubjectClaim(accessToken));
     }
 }
