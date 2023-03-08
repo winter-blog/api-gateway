@@ -12,12 +12,12 @@ import reactor.core.publisher.Mono;
 public class RequestAuthValidAdapter implements GetUserValidPort {
 
     @Override
-    public Mono<BaseResponse<MemberValidResponse>> requestValidUserCheck(Long memberId) {
+    public Mono<BaseResponse<MemberValidResponse>> requestValidMemberCheck(String email) {
         WebClient webClient = WebClient.builder()
                                        .baseUrl("http://localhost:8080/auth-service")
                                        .build();
         return webClient.get()
-                        .uri("/" + memberId + "/valid")
+                        .uri("/" + email + "/valid")
                         .retrieve()
                         .bodyToMono(new ParameterizedTypeReference<>() {
                         });

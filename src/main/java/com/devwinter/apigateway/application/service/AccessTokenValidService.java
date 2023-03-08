@@ -23,6 +23,6 @@ public class AccessTokenValidService implements AccessTokenValidUseCase {
         // 토큰 위변조 검증
         jwtTokenProvider.tokenForgeryCheck(userId, accessToken);
 
-        return getUserValidPort.requestValidUserCheck(userId);
+        return getUserValidPort.requestValidMemberCheck(jwtTokenProvider.getSubjectClaim(accessToken));
     }
 }

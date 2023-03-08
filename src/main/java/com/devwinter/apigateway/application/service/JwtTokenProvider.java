@@ -41,6 +41,10 @@ public class JwtTokenProvider {
         return claimsResolver.apply(claims);
     }
 
+    public String getSubjectClaim(String token) {
+        return getClaimFromToken(token, Claims::getSubject);
+    }
+
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder()
                    .setSigningKey(secretKey)
