@@ -32,7 +32,7 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
 
         if(ex instanceof NotFoundException) {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-            bytes = getBytes(BaseResponse.error(ApiGatewayErrorCode.REQUEST_SERVICE_WAIT_ERROR));
+            bytes = getBytes(BaseResponse.error(((NotFoundException) ex).getReason()));
         }
 
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
