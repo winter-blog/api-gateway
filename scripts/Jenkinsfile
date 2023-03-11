@@ -9,9 +9,9 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('docker_hub_user_credential')
         DOCKER_CONTAINER_NAME = 'winter-blog-api-gateway'
 
-        ENVIRONMENT='-e SPRING_PROFILES_ACTIVE=prod -e SERVER_PORT=8070'
+        ENVIRONMENT='-e SPRING_PROFILES_ACTIVE=prod -e SERVER_PORT=8080'
         EXTERNAL_PORT = 8080
-        INTERNAL_PORT = 8070
+        INTERNAL_PORT = 8080
         SSH_CMD = 'ssh -i /var/lib/jenkins/.ssh/jenkins.pem ubuntu@3.34.53.11'
         ENV_FILE = '--env-file=./env/api-gateway.env'
         NETWORK = '--net winter-blog-network'
