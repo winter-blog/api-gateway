@@ -10,8 +10,9 @@ pipeline {
         DOCKER_CONTAINER_NAME = 'winter-blog-api-gateway'
 
         PROFILE='-e "SPRING_PROFILES_ACTIVE=prod"'
-        EXTERNAL_PORT = 8070
+        EXTERNAL_PORT = 8080
         INTERNAL_PORT = 8070
+        SERVER_PORT = 8070
         SSH_CMD = 'ssh -i /var/lib/jenkins/.ssh/jenkins.pem ubuntu@3.34.53.11'
         ENV_FILE = '--env-file=./env/api-gateway.env'
         NETWORK = '--net winter-blog-network'
@@ -49,7 +50,7 @@ pipeline {
                   sh "$SSH_CMD 'docker pull $repository'"
                   sh "$SSH_CMD 'docker stop $DOCKER_CONTAINER_NAME || true'"
                   sh "$SSH_CMD 'docker rm $DOCKER_CONTAINER_NAME || true'"
-                  sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK $PROFILE -p $EXTERNAL_PORT:$INTERNAL_PORT $ENV_FILE $repository'"
+                  sh "$SSH_CMD 'docker run -d --name $DOCKER_CONTAINER_NAME $NETWORK $PROFILE -p $EXTERNAL_PORT:$INTERNAL_PORT -e SERVER_PORT = $SERVER_PORT $ENV_FILE $repository'"
                   sh "$SSH_CMD 'docker images -qf dangling=true | xargs -I{} docker rmi {}'"
             }
          }
