@@ -14,7 +14,7 @@ public class RequestAuthValidAdapter implements GetUserValidPort {
     @Override
     public Mono<BaseResponse<MemberValidResponse>> requestValidMemberCheck(String email) {
         WebClient webClient = WebClient.builder()
-                                       .baseUrl("http://localhost:8080/auth-service")
+                                       .baseUrl("http://localhost:8070/auth-service")
                                        .build();
         return webClient.get()
                         .uri("/" + email + "/valid")

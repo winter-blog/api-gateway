@@ -51,7 +51,7 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         } else {
             if(bytes == null) {
                 response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                bytes = getBytes(BaseResponse.error(ApiGatewayErrorCode.INTERNAL_SERVER_ERROR));
+                bytes = getBytes(ex.getMessage());
             }
         }
 
