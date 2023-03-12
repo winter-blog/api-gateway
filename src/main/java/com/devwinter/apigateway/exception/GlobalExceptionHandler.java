@@ -29,7 +29,7 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         if (response.isCommitted()) {
             return Mono.error(ex);
         }
-
+        log.error("handle Error: ", ex);
         if(ex instanceof NotFoundException) {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             bytes = getBytes(BaseResponse.error(((NotFoundException) ex).getReason()));
