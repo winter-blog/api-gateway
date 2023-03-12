@@ -36,6 +36,7 @@ public class AccessTokenAuthorizationHeaderFilter extends AbstractGatewayFilterF
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+            log.info("request:{}", request.getPath());
 
             Long memberId = RequestHeaderUtil.getMemberId(request);
             String accessToken = RequestHeaderUtil.getAccessToken(request);
