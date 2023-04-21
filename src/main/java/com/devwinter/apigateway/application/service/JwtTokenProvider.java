@@ -85,7 +85,7 @@ public class JwtTokenProvider {
             }
         } catch (ExpiredJwtException e) {
             log.error("JWT token is expired: {}", e.getMessage());
-            throw new ApiGatewayException(JWT_TOKEN_EXPIRE);
+            // throw new ApiGatewayException(JWT_TOKEN_EXPIRE);
         }
     }
 }
