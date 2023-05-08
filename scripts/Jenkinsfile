@@ -63,14 +63,14 @@ pipeline {
                             description: "api-gateway CI/CD 결과",
                             footer: "api-gateway 빌드 및 배포에 성공했습니다.",
                             link: env.BUILD_URL, result: currentBuild.currentResult,
-                            webhookURL: $DISCORD_WEBHOOK_URL
+                            webhookURL: evn.DISCORD_WEBHOOK_URL
             }
             failure {
                 discordSend title: "API Gateway CI/CD 알림",
                             description: "api-gateway CI/CD 결과",
                             footer: "api-gateway 빛드 및 배포에 실패했습니다.",
                             link: env.BUILD_URL, result: currentBuild.currentResult,
-                            webhookURL: $DISCORD_WEBHOOK_URL
+                            webhookURL: evn.DISCORD_WEBHOOK_URL
             }
      }
 }
