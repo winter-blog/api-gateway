@@ -15,6 +15,8 @@ pipeline {
         SSH_CMD = 'ssh -i /var/lib/jenkins/.ssh/jenkins.pem ubuntu@3.39.159.26'
         ENV_FILE = '--env-file=./env/api-gateway.env'
         NETWORK = '--net winter-blog-network'
+
+        DISCORD_WEBHOOK_URL = credentials("discord_webhook")
     }
 
     stages {
@@ -54,4 +56,21 @@ pipeline {
             }
          }
     }
+
+     post {
+            success {
+                discordSend title: "API Gateway CI/CD 알림",
+                            description: "api-gateway CI/CD 결과",
+                            footer: "api-gateway 빌드 및 배포에 성공했습니다.",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            webhookURL: $DISCORD_WEBHOOK_URL
+            }
+            failure {
+                discordSend title: "API Gateway CI/CD 알림",
+                            description: "api-gateway CI/CD 결과",
+                            footer: "api-gateway 빛드 및 배포에 실패했습니다.",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            webhookURL: $DISCORD_WEBHOOK_URL
+            }
+     }
 }
